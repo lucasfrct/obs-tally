@@ -1,14 +1,27 @@
+body {
+    background-color: #3A393A !important;
+    color: #FFF;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: larger;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
 nav {
     display: block;
     width: 100%;
     min-height: 60px;
-    border: solid 1px #F00;
     top: 0px;
     left: 0;
     position: relative;
     display: grid;
-    grid-template-columns: 100px 3fr 1fr;
+    grid-template-columns: 100px 3fr 1fr 120px;
     text-align: center;
+    margin-bottom: -60px;
+    z-index: 1000;
+    background-color: rgba(255,255,255, 0.2);
+    box-sizing: border-box;
 }
 
 nav > * {
@@ -16,4 +29,97 @@ nav > * {
     align-items: center;
     justify-content: center;
     text-align: center;
+    box-sizing: border-box;
+}
+nav span {
+    background-color: seagreen;
+    margin: 0 4px;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: small;
+}
+
+.primary {
+    background-color: #1F1E1F;
+    color: #FFF;
+}
+
+.secondary {
+    background-color: #3A393A;
+    color: #fff;
+}
+
+.terciary {
+    background-color: #464546;
+    color: #FFF;
+}
+
+.softcolor {
+    background-color: #4C4C4C;
+    color: #FFF;
+}
+
+.tally {
+    display: block;
+    min-height: 100px;
+    height: calc(100vh - 82px);
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.led {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-size: larger;
+}
+
+body .pgm {
+    background-color: red;
+}
+
+body .pvw {
+    background-color: green;
+}
+
+.scenes {
+    position: relative;
+    height: 80px;
+    width: 100%;
+    display: block;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.scenes .list {
+    display: inline-block;
+    width: 100%;
+    min-height: 60px;
+    padding: 5px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    vertical-align: top;
+}
+
+.scene {
+    width: 90px;
+    height: 50px;
+    background-color: rgba(255,255,255, 0.1);
+    box-sizing: border-box;
+    font-size: x-small;
+    vertical-align: top;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 1px;
+    border-radius: 4px;
+}
+
+.active {
+    outline: 1px yellow;
+    border: solid 1px #FF0;
 }

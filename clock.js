@@ -1,15 +1,17 @@
-function startTime() {
-    var today = new Date();
-    var h = today.getHours();
-    var m = today.getMinutes();
-    var s = today.getSeconds();
-    m = checkTime(m);
-    s = checkTime(s);
-    document.getElementById('clock').innerHTML =
-        h + ":" + m + ":" + s;
-    var t = setTimeout(startTime, 500);
+function startTime(fn = null) {
+    let today = new Date()
+    let h = today.getHours()
+    let m = today.getMinutes()
+    let s = today.getSeconds()
+    m = checkTime(m)
+    s = checkTime(s)
+    let clock = String(h + ":" + m + ":" + s)
+    if(fn) { fn(clock) }
+    setTimeout(()=> { startTime(fn) }, 500)
+    return clock
 }
+
 function checkTime(i) {
-    if (i < 10) { i = "0" + i };  // add zero in front of numbers < 10
+    if (i < 10) { i = "0" + i }
     return i;
 }
