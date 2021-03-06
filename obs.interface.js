@@ -4,6 +4,8 @@ var ElementScenes = null
 
 function OBSInterface() {
 
+    console.log("LOAD TALLY", obsSocket)
+
     ElementNav = document.querySelector(".navigation")
     ElementTally = document.querySelector(".tally")
     ElementScenes = document.querySelector(".scenes")
@@ -17,41 +19,22 @@ function OBSInterface() {
 }
 
 function InitialInterface(socket) {
-    console.log("LOAD DISPLAY", socket)
-        
-        Navigation(socket.resume)
-        ScenesList(socket.sceneList)
-        Tally(obsSocket.tally)
-    
-        //console.log("INTERFACE", ElementTally.children[0])
-        //console.log("Soket", obsSocket)
+    //console.log("LOAD DISPLAY", socket)
+    Navigation(obsSocket.resume)
+    TallySingle(obsSocket.monitor)
+    ScenesList(obsSocket.sceneList)
 }
 
 function Navigation(resume) {
-    let profile = ElementNav.querySelector(".profile")
-    let cpu = ElementNav.querySelector(".cpu")
-    let fps = ElementNav.querySelector(".fps")
-
-    profile.innerHTML = resume.profile
-    cpu.innerHTML = String(resume.cpu).substring(0,3)+"%"
-    fps.innerHTML = String(resume.fps).substring(0,2)
+    ElementNav.querySelector(".time").innerHTML = String(resume.time).substring(0,8)
+    ElementNav.querySelector(".profile").innerHTML = resume.profile
+    ElementNav.querySelector(".cpu").innerHTML = String(resume.cpu).substring(0,3)+"%"
+    ElementNav.querySelector(".fps").innerHTML = String(resume.fps).substring(0,4)
 }
 
-function Tally(tally = null) {
-    
-    if(tally.prev) {
-        LedPVW(ElementTally.children[0])
-    } 
-    
-    if(tally.pgm) {
-        LedPGM(ElementTally.children[0])
-    } 
-    
-    if(tally.on){
-        LedOFF(ElementTally.children[0])
-    }
-
-    if(tally.name) { ElementTally.children[0].children[0].innerHTML = tally.name }
+function TallySingle(monitor = null) {
+    ElementTally.querySelector(".preview").innerHTML = monitor.prev
+    ElementTally.querySelector(".program").innerHTML = monitor.pgm
 }
 
 function LedPGM(led = null) {
@@ -70,6 +53,9 @@ function LedOFF(led = null) {
 }
 
 function ScenesList(scenes = []) {
+    //console.log("////////////////////////////////////////////////", scenes)
+    ElementScenes.children[0].innerHTML = ""
+    
     scenes.forEach((scene)=> {
         let el = SceneTemplate(scene)
         ElementScenes.children[0].appendChild(el)
@@ -79,7 +65,9 @@ function ScenesList(scenes = []) {
 function SceneTemplate(scene = null) {
     let element = document.createElement("div")
     element.classList.add("scene")
-    element.classList.add("pgm")
+    
+    if(scene.prev) { element.classList.add("prev") }
+    if(scene.pgm) { element.classList.add("pgm") }
     element.innerHTML = scene.name
 
     element.onclick = function(event) {

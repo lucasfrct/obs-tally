@@ -16,7 +16,7 @@ nav {
     left: 0;
     position: relative;
     display: grid;
-    grid-template-columns: 100px 3fr 1fr 120px;
+    grid-template-columns: 120px 1fr 2fr 1fr 120px;
     text-align: center;
     margin-bottom: -60px;
     z-index: 1000;
@@ -82,7 +82,7 @@ body .pgm {
     background-color: red;
 }
 
-body .pvw {
+body .prev {
     background-color: green;
 }
 
@@ -122,4 +122,18 @@ body .pvw {
 .active {
     outline: 1px yellow;
     border: solid 1px #FF0;
+}
+
+.program {
+    font-size: xx-large;
+}
+
+.preview {
+    position: absolute;
+    margin-bottom: 0;
+    bottom: 20px;
+    text-align: end;
+    font-size: medium;
+    padding: 4px 16px;
+    border-radius: 4px;
 }

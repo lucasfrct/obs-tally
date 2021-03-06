@@ -3,10 +3,10 @@ var obsSocket = {
     open: 0,
     ip: "127.0.0.1:4444",
     instance: null,
-    resume: { profile: "OBS TALLY", streaming: false, fps: 0, cpu: 0, mode: "studio", time: "0" },
-    monitor: { preview: "prev", program: "pgm" },
+    resume: { profile: "OBS TALLY", streaming: false, fps: 0, cpu: 0, mode: "single", time: "0" },
+    monitor: { prev: "PREV", pgm: "PGM" },
     sceneList: [],
-    tally: { scenes: [ ], prev: false, pgm: false },
+    tally: { name: "TALLY", scenes: [ ], prev: false, pgm: false },
     tallys: [],
     beats: [],
     heartbeat: heartbeat,
@@ -23,7 +23,7 @@ function OBSSubscribe(fn = null) {
 }
 
 function OBSNotify() {
-    console.log("OBS NOTIFY: ", obsSocket)
+    //console.log("OBS NOTIFY: ", obsSocket)
     obsSocket.observers.forEach((fn, index)=> {
         if(fn) { fn(obsSocket) } 
     })
@@ -34,6 +34,7 @@ function heartbeat(fn = null) {
 }
 
 function OBSHeartNotify() {
+    //console.log("BEAT NOTIFY: ", obsSocket)
     obsSocket.beats.forEach((fn)=> {
         if(fn) { fn(obsSocket) } 
     })
@@ -58,6 +59,8 @@ function OBSWebSocket() {
 
     obsSocket.instance.onmessage = function (evt) {
         let data = JSON.parse(evt.data)
+        
+        console.log("UPDATE ON MESSAGE: ", data)
 
         if (data.hasOwnProperty("message-id")) {
             OBSHandleInitialStateEvent(data)
@@ -103,6 +106,7 @@ function OBSInitialState() {
 }
 
 function OBSHandleInitialStateEvent(data) {
+    
     const messageId = data["message-id"]
 
     switch (messageId) {
@@ -111,40 +115,50 @@ function OBSHandleInitialStateEvent(data) {
             break
         case "get-streaming-status":
             obsSocket.resume.streaming = data['streaming']
-            obsSocket.resume.time = data['stream-timecode']
+            if(data['streaming']) { obsSocket.resume.time = data['stream-timecode'] }
             break
         case "get-preview-scene":
-            obsSocket.monitor.preview = data['name']
+            obsSocket.monitor.prev = data['name']
             break
         case "get-scene-list":
-            obsSocket.monitor.program = data['current-scene']
-            obsSocket.sceneList = data.scenes.map(buildScene)
+            obsSocket.monitor.pgm = data['current-scene']
+            obsSocket.sceneList = buildScene(data['scenes'])
             break
         default:
             break
     }
         
     obsSocket.notify()
+
 }
 
-function buildScene(scene) {
-    let sceneFormat = { name: scene.name, prev: false, pgm: false }
-    if(scene.name == obsSocket.monitor.preview) { sceneFormat.prev = true }
-    if(scene.name == obsSocket.monitor.program) { sceneFormat.pgm = true }
-    return sceneFormat
+function buildScene(scenes) {
+    let ScenesList = []
+    scenes.forEach((scene)=> {
+        let pr = false
+        let pg = false
+        if(scene.name == obsSocket.monitor.prev) { pr = true }
+        if(scene.name == obsSocket.monitor.pgm) { pg = true }
+        ScenesList.push({ name: scene.name, prev: pr, pgm: pg })
+    })
+    return ScenesList
 }
 
 function OBSHandleStateChangeEvent(data) {
-
+   
+    console.log("UPDATE OBS", data)
+    
     const updateType = data["update-type"]
     let displayNeedsUpdate = true
+    
 
     switch (updateType) {
         case "PreviewSceneChanged":
-            obsSocket.monitor.preview = data["scene-name"]
+            obsSocket.monitor.prev = data["scene-name"]
+            OBSUpdateSceneList()
             break
         case "SwitchScenes":
-            obsSocket.monitor.program = data["scene-name"]
+            obsSocket.monitor.pgm = data["scene-name"]
             break
         case "StreamStarted":
             obsSocket.resume.streaming = true
@@ -153,21 +167,18 @@ function OBSHandleStateChangeEvent(data) {
             obsSocket.resume.streaming = false
             break
         case "TransitionBegin":
-            obsSocket.monitor = { preview: data["from-scene"], program: data["to-scene"]}
+            obsSocket.monitor = { prev: data["from-scene"], pgm: data["to-scene"]}
+            break
+        case "StreamStatus":
+            obsSocket.resume.cpu = data['cpu-usage']
+            obsSocket.resume.fps = data['fps']
+            obsSocket.resume.time = data['stream-timecode']
             break
         default:
             displayNeedsUpdate = false
-            obsSocket.monitor.program = data['current-scene']
-            obsSocket.resume.streaming = data['streaming']
-            
-            if(obsSocket.resume.cpu = data.stats) {
-                obsSocket.resume.cpu = data.stats['cpu-usage']
-                obsSocket.resume.fps = data.stats['fps']
-            }
-
             break
     }
-        
+
     obsSocket.heartNotify()
     
     if (displayNeedsUpdate) {
@@ -179,4 +190,9 @@ function OBSBuildTally(scene) {
     obsSocket.tally.name = (!obsSocket.tally.name) ? scene.name : obsSocket.tally.name
     obsSocket.tally.scenes.push(scene)
     obsSocket.notify()
+}
+
+function OBSUpdateSceneList() {
+    buildScene(obsSocket.sceneList)
+    console.log("===============>>>>>>>>>>>>>",obsSocket.sceneList)
 }
